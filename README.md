@@ -27,9 +27,9 @@ git clone https://github.com/SEU_USUARIO/projeto-dio-system-bank.git
 cd projeto-dio-system-bank
 ```
 3. **Execute o programa:**
-
+```
 python main.py
-
+```
 ## 📄 Licença
 Este projeto está licenciado sob a licença [MIT License](https://opensource.org/licenses/MIT). Veja o arquivo LICENSE para mais detalhes.
 
