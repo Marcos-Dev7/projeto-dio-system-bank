@@ -110,7 +110,7 @@ def criar_conta_corrente(agencia, cpf_usuario, lista_usuarios, lista_contas):
         "agencia": agencia,
         "numero_conta": novo_numero_conta,
         "cpf_titular": usuario_encontrado['cpf'],
-        "saldo": 0.0 
+
     }
     lista_contas.append(nova_conta) 
     print(f"{COLOR_GREEN}Conta corrente {nova_conta['numero_conta']} (Agência: {agencia}) criada para {usuario_encontrado['nome']} (CPF: {usuario_encontrado['cpf']}).{COLOR_RESET}")
@@ -129,7 +129,7 @@ def listar_contas(lista_contas):
                 nome_titular = user['nome']
                 break
         
-        print(f"Agência: {conta['agencia']}, Conta: {conta['numero_conta']}, Titular: {nome_titular} (CPF: {conta['cpf_titular']}), Saldo: R${conta['saldo']:.2f}")
+        print(f"Agência: {conta['agencia']}, Conta: {conta['numero_conta']}, Titular: {nome_titular} (CPF: {conta['cpf_titular']})")
     print(f"{COLOR_AMARELO}--------------------------{COLOR_RESET}")
 while True:
     opcao = menu()
