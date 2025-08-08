@@ -1,9 +1,13 @@
+from abc import ABC, abstractmethod
+from datetime import date
 # . Constantes de controle de cor.
+
 COLOR_VERMELHO = "\033[31m"
 COLOR_RESET = "\033[0m"
 COLOR_AZUL = "\033[94m"
 COLOR_AMARELO = "\033[33m"
 COLOR_GREEN = "\033[32m"
+
 # 1. Variaveis Globais
 
 saldo = 0
@@ -15,10 +19,62 @@ usuarios = []
 AGENCIA = "0001"
 contas = []
 
-# 2. Criei as funções
+# 1.1 Criar Classes e Objetos para modelar o aplicativo.
+class Conta:
+    def __init__(self,saldo, numero, agencia, cliente, historico): #Saldo tipo float, numero tipo int, agencia tipo str, cliente vai receber Cliente, historico.
+        self._saldo = saldo
+        self._numero = numero
+        self._agencia = agencia
+        self._cliente = cliente
+        
+    def saldo(self): #Metodo para visualizar saldo
+        return float(saldo)
+    
+    @classmethod
+    def nova_conta(cls, cliente, numero): #Metodo pra criar conta que retorne um objeto Conta
+        return cls(cliente, numero)
+    
+    def sacar(self, valor):      #criar um jeito de mostrar que a operação foi sucesso : true senao false
+        return bool(valor)
+    
+    def depositar(self, valor):
+        return bool(valor)
+class Transacao(ABC): #Classe Abstrata
+    @abstractmethod
+    def registrar(conta):
+        return Conta
+class ContaCorrente(Conta):  #Classe filha com extensão dos atributos limite e limite_saques
+    def __init__(self, saldo, numero, agencia, cliente, historico, limite, limite_saques):
+        self._limite = limite
+        self._limite_saques = limite_saques
+        super().__init__(saldo, numero, agencia, cliente, historico)
+class Historico:
+    def __init__(self, transacoes):
+        self.transacoes = transacoes
+
+    
+    def adicionar_transacao(transacao):
+        return Transacao 
+class Cliente:
+    def __init__(self, endereco, contas):
+        self.endereco = endereco
+        self.contas = contas
+
+    def realizar_transacao(conta, transacao):
+        pass
+
+    def adicionar_conta(conta):
+        pass
+class PessoaFisica:
+    def __init__(self, cpf, nome, data_nascimento):
+        self._cpf = cpf
+        self._nome = nome
+        self._data_nascimento = data_nascimento
+        
+# 2. Criei as funçõespass
 
 def menu():
-    menu_str = f'''{COLOR_AMARELO}\n ----- DIO BANK -----{COLOR_RESET}
+    menu_str = f'''{COLOR_AMARELO}\n    ----- DIO BANK -----{COLOR_RESET}
     {COLOR_AZUL}[1] Depositar
     {COLOR_AZUL}[2] Sacar
     {COLOR_AZUL}[3] Extrato
@@ -115,7 +171,7 @@ def criar_conta_corrente(agencia, cpf_usuario, lista_usuarios, lista_contas):
     lista_contas.append(nova_conta) 
     print(f"{COLOR_GREEN}Conta corrente {nova_conta['numero_conta']} (Agência: {agencia}) criada para {usuario_encontrado['nome']} (CPF: {usuario_encontrado['cpf']}).{COLOR_RESET}")
     return nova_conta
-          
+
 def listar_contas(lista_contas): 
     if not lista_contas:
         print(f"{COLOR_AMARELO}Não há contas cadastradas.{COLOR_RESET}")
@@ -131,7 +187,8 @@ def listar_contas(lista_contas):
         
         print(f"Agência: {conta['agencia']}, Conta: {conta['numero_conta']}, Titular: {nome_titular} (CPF: {conta['cpf_titular']})")
     print(f"{COLOR_AMARELO}--------------------------{COLOR_RESET}")
-while True:
+
+while True: #Loop Menu
     opcao = menu()
     
     if opcao == "1":
