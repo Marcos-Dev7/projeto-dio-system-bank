@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
-from datetime import date
+from abc import ABC, abstractmethod, abstractproperty
+from datetime import datetime
+
 # . Constantes de controle de cor.
 
 COLOR_VERMELHO = "\033[31m"
@@ -22,55 +23,162 @@ contas = []
 # 1.1 Criar Classes e Objetos para modelar o aplicativo.
 class Conta:
     def __init__(self,saldo, numero, agencia, cliente, historico): #Saldo tipo float, numero tipo int, agencia tipo str, cliente vai receber Cliente, historico.
-        self._saldo = saldo
+        self._saldo = 0
         self._numero = numero
-        self._agencia = agencia
+        self._agencia = "0001"
         self._cliente = cliente
-        
-    def saldo(self): #Metodo para visualizar saldo
-        return float(saldo)
-    
+        self._historico = Historico()
     @classmethod
     def nova_conta(cls, cliente, numero): #Metodo pra criar conta que retorne um objeto Conta
         return cls(cliente, numero)
     
-    def sacar(self, valor):      #criar um jeito de mostrar que a operação foi sucesso : true senao false
-        return bool(valor)
+    @property
+    def saldo(self): #Metodo para visualizar saldo
+        return self._saldo
     
-    def depositar(self, valor):
-        return bool(valor)
+    @property
+    def numero(self):
+        return self._saldo
+    
+    @property
+    def agencia(self):
+        return self._agencia
+    
+    @property
+    def cliente(self):
+        return self._cliente
+    
+    @property
+    def historico (self):
+        return self._historico
+    
+    def sacar(self, valor):
+        saldo = self.saldo
+        excedeu_saldo = valor > saldo
+
+        if excedeu_saldo:
+            print(f"{COLOR_VERMELHO}Operação Falha! Seu saldo e insuficiente para realizar o saque!{COLOR_RESET}")
+
+        elif valor > 0:
+            self.saldo -= valor
+            print(f"{COLOR_GREEN} Saque Realizado com sucesso no valor de R$ {valor:.2f}!{COLOR_RESET}")
+            return True
+        
+        else:
+            print("\n Operação falhou! o valor é invalido.")
+            return False
+        
+    def depositar (self, valor):
+        if valor > 0:
+            self._saldo += valor
+            print(f" {COLOR_GREEN} Deposito no valor de R$ {valor:.2f} realizado com sucesso!{COLOR_RESET}")
+        else:
+            print("Operação falhou! O valor informado e invalido")
+            return False
+        
+        return True
 class Transacao(ABC): #Classe Abstrata
-    @abstractmethod
-    def registrar(conta):
-        return Conta
+    @property
+    @abstractproperty
+    def valor(self):
+        pass
+    
+    @abstractclassmethod
+    def registrar(self,conta):
+        pass
 class ContaCorrente(Conta):  #Classe filha com extensão dos atributos limite e limite_saques
-    def __init__(self, saldo, numero, agencia, cliente, historico, limite, limite_saques):
+    def __init__(self,  numero, cliente, limite=500, limite_saques=3):
+        super().__init__(self, numero, cliente)
         self._limite = limite
         self._limite_saques = limite_saques
-        super().__init__(saldo, numero, agencia, cliente, historico)
-class Historico:
-    def __init__(self, transacoes):
-        self.transacoes = transacoes
+        
+    def sacar(self, valor):
+        numero_saques = len(
+            [transacao for transacao in self.historico.transacoes if transacao["Tipo"] == "Saque"]  
+        )
 
+        excedeu_limite = valor > self._limite
+        excedeu_saques = numero_saques >= self._limite_saques
+
+        if excedeu_limite:
+            print(f"{COLOR_VERMELHO}Operação Falha! Voçê excedeu o limite de saque por transação!.{COLOR_RESET}")
+        
+        elif excedeu_saques:
+            print(f"{COLOR_VERMELHO}Operação Falha! Você excedeu o limite de saque diário!{COLOR_RESET}")
+
+        else:
+            return super().sacar(valor)
+
+        return False
+    
+    def __str__(self):
+        return f"""\
+            Agência:\t{self.agencia}
+            C/C:\t\t{self.numero}
+            Titular:\t{self.cliente.nome}
+        """
+class Historico:
+    def __init__(self):
+        self._transacoes = []
+
+    @property
+    def transacoes(self):
+        return self._transacoes
     
     def adicionar_transacao(transacao):
-        return Transacao 
+        self._transacoes.append(
+            {
+                "tipo": transacao.__class__.__name__,
+                "valor": transacao.valor,
+                "data": datetime.now().strftime
+                ("%d-%m_%Y %H:%M:%s"),
+            }
+        )
 class Cliente:
-    def __init__(self, endereco, contas):
+    def __init__(self, endereco,):
         self.endereco = endereco
-        self.contas = contas
+        self.contas = []
 
-    def realizar_transacao(conta, transacao):
+    def realizar_transacao(self, conta, transacao):
+        transacao.registrar(conta)
         pass
 
-    def adicionar_conta(conta):
+    def adicionar_conta(self, conta):
+        self.contas.append(conta)
         pass
-class PessoaFisica:
-    def __init__(self, cpf, nome, data_nascimento):
-        self._cpf = cpf
+class PessoaFisica(Cliente):
+    def __init__(self, nome, data_nascimento, cpf, endereco):
+        super().__init__(endereco) 
         self._nome = nome
         self._data_nascimento = data_nascimento
-        
+        self._cpf = cpf
+class Saque(Transacao):
+    def __init__(self, valor):
+        self._valor = valor
+
+    @property
+    def valor(self):
+        return self._valor
+
+    def registrar(self, conta):
+        sucesso_transacao = conta.sacar(self.valor)
+
+        if sucesso_transacao:
+            conta.historico.adicionar_transacao(self)
+
+class Deposito(Transacao):
+    def __init__(self, valor):
+        self.valor = valor
+    
+    @property
+    def valor(self):
+        return self.valor
+    
+    def registrar(self, conta):
+        sucesso_transacao = conta.depositar(self,valor)
+
+        if sucesso_transacao:
+            conta.historico.adicionar_transacao(self)
 # 2. Criei as funçõespass
 
 def menu():
@@ -116,10 +224,10 @@ def exibir_extrato(saldo,/,*, extrato): #hibrido (posicional e nomeado)
     print(header.center(50, '='))
         
     if not extrato:
-             print(" Não foram realizadas movimentações!")
+            print(" Não foram realizadas movimentações!")
     else:
             print(f"\n{extrato}")
-     
+    
     print(f"==================================================")
     print(f" Saldo atual: {COLOR_GREEN} R$ {saldo:.2f}{COLOR_RESET}")
 
@@ -134,16 +242,16 @@ def criar_usuario(nome, data_nascimento, cpf, endereco, lista_usuarios):
     cpf = int(cpf_str)
 
     for usuario_existente in lista_usuarios:
-         if usuario_existente['cpf'] == cpf:
-              print('Erro, Já existe um usuario com este cpf')
-              return None
-         
+        if usuario_existente['cpf'] == cpf:
+            print('Erro, Já existe um usuario com este cpf')
+            return None
+        
     #Se Passar pela validação.     
     novo_usuario = {
-         "nome": nome,
-         "data_nascimento": data_nascimento,
-         "endereco": endereco,
-         "cpf": cpf
+        "nome": nome,
+        "data_nascimento": data_nascimento,
+        "endereco": endereco,
+        "cpf": cpf
     }
     lista_usuarios.append(novo_usuario)
     print('Usuario criado com sucesso!')
@@ -198,15 +306,15 @@ while True: #Loop Menu
         saque = float(input('Digite o valor desejado para saque: '))
 
         saldo, extrato, numero_saques = sacar(
-             saldo= saldo,
-             valor= saque,
-             extrato= extrato,
-             limite=limite,
-             numero_saques=numero_saques,
-             limite_saques= LIMITE_SAQUE
+            saldo= saldo,
+            valor= saque,
+            extrato= extrato,
+            limite=limite,
+            numero_saques=numero_saques,
+            limite_saques= LIMITE_SAQUE
         )
     elif opcao == "3":
-         exibir_extrato(saldo, extrato=extrato)
+        exibir_extrato(saldo, extrato=extrato)
     elif opcao == "4":
         nome = input('Digite o seu nome:').lower()
         data_nascimento = input('Data de nascimento (DD-MM-AAAA): ')
