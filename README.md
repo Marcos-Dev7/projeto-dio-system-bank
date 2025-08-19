@@ -1,5 +1,5 @@
-# 🏦 Projeto Sistema Bancário - DIO (v2)
-Este repositório contém a segunda versão (v2) de um sistema bancário simples, desenvolvido como parte de um desafio prático da Digital Innovation One (DIO). Esta versão expande as funcionalidades da v1, introduzindo a modularização do código e novas operações para gerenciamento de usuários e contas.
+# 🏦 Projeto Sistema Bancário - DIO (v3)
+Este repositório contém a terceira versão (v3) de um sistema bancário simples, desenvolvido como parte de um desafio prático da Digital Innovation One (DIO). Esta versão expande as funcionalidades da v2, introduzindo melhorias na interface do usuário e novas operações para gerenciamento de contas.
 
 ## ✨ Funcionalidades (v2)
 Nesta versão aprimorada, as seguintes funcionalidades foram implementadas:
